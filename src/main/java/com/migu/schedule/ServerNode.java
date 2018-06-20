@@ -31,7 +31,7 @@ public class ServerNode implements Comparable{
     }
 
     public int compareTo(Object o) {
-        return this.totalConsume - ((ServerNode) o).totalConsume;
+        return this.totalConsume - ((ServerNode) o).totalConsume==0 ?this.totalConsume - ((ServerNode) o).totalConsume : this.infos.size() - ((ServerNode) o).infos.size();
     }
 
 }
