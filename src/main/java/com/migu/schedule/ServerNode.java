@@ -18,6 +18,11 @@ public class ServerNode implements Comparable{
         totalConsume+= info.getConsumption();
     }
 
+    public void removeTask(MyTaskInfo info){
+        totalConsume-=info.getConsumption();
+        infos.remove(info);
+    }
+
     public LinkedList<MyTaskInfo> getInfos() {
         return infos;
     }
@@ -31,7 +36,14 @@ public class ServerNode implements Comparable{
     }
 
     public int compareTo(Object o) {
-        return this.totalConsume - ((ServerNode) o).totalConsume==0 ?this.totalConsume - ((ServerNode) o).totalConsume : this.infos.size() - ((ServerNode) o).infos.size();
+        return this.totalConsume - ((ServerNode) o).totalConsume != 0
+                ? this.totalConsume - ((ServerNode) o).totalConsume
+                : this.infos.size() - ((ServerNode) o).infos.size();
+    }
+
+    public void reset(){
+        infos.clear();
+        totalConsume = 0;
     }
 
 }

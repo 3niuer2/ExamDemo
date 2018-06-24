@@ -21,6 +21,8 @@ public class MyTaskInfo extends TaskInfo implements Comparable{
     }
 
     public int compareTo(Object o) {
-        return getConsumption() -((MyTaskInfo)o).getConsumption();
+        return getConsumption() - ((MyTaskInfo) o).getConsumption() != 0
+                ? getConsumption() - ((MyTaskInfo) o).getConsumption()
+                : this.getTaskId() - ((MyTaskInfo) o).getTaskId();
     }
 }

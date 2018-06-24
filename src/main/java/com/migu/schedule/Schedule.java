@@ -123,16 +123,18 @@ public class Schedule {
                if (o.getTaskId() == taskId) {
                    exist = true;
                    hungUpaskList.remove(o);
+
                    return ReturnCodeKeys.E011;
                }
            }
        }else if (!runningTaskList.isEmpty()){
            Iterator<MyTaskInfo> tmep = runningTaskList.iterator();
            boolean exist = false;
-           if (!exist && tmep.hasNext()) {
+           while (!exist && tmep.hasNext()) {
                MyTaskInfo o = (MyTaskInfo)tmep.next();
                if (o.getTaskId() == taskId) {
                    exist = true;
+                   registerNode.get(o.getNodeId()).removeTask(o);
                    runningTaskList.remove(o);
                    return ReturnCodeKeys.E011;
                }
@@ -153,10 +155,11 @@ public class Schedule {
         }
 
         if (!hungUpaskList.isEmpty()) {
-            doShechule(hungUpaskList);
+            doShechule(hungUpaskList,false);
             runningTaskList.addAll(hungUpaskList);
+            hungUpaskList.clear();
         } else if (!runningTaskList.isEmpty()) {
-            doShechule(runningTaskList);
+            doShechule(runningTaskList,true);
         }
         if (!shechuleResult(threshold)) {
             return ReturnCodeKeys.E013;
@@ -167,9 +170,17 @@ public class Schedule {
     }
 
 
-        private void doShechule (LinkedList<MyTaskInfo> infos) {
+        private void doShechule (LinkedList<MyTaskInfo> infos,boolean needClear) {
 
             Object[] keys = registerNode.keySet().toArray();
+
+            if (needClear){
+                Iterator<ServerNode> iterator = registerNode.values().iterator();
+                while (iterator.hasNext()){
+                    iterator.next().reset();
+                }
+            }
+
             Arrays.sort(keys);
             Object[] nodes = registerNode.values().toArray();
             Object[] sortInfos = infos.toArray();
@@ -182,11 +193,12 @@ public class Schedule {
             Arrays.sort(nodes);
             for (int j = 0; j < keys.length; j++) {
                 ServerNode temp = (ServerNode) nodes[j];
-                registerNode.put((Integer) (keys[j]), temp);
                 Iterator<MyTaskInfo> myTaskInfoIterator = temp.getInfos().iterator();
                 while (myTaskInfoIterator.hasNext()) {
                     myTaskInfoIterator.next().setNodeId((Integer) keys[j]);
                 }
+                registerNode.put((Integer) (keys[j]), temp);
+
             }
         }
 
@@ -196,8 +208,8 @@ public class Schedule {
         Arrays.sort(keys);
         Object[] nodes = registerNode.values().toArray();
         Arrays.sort(nodes);
-        for (int i = 0; i < keys.length-2; i++) {
-            for (int j = i+1; j < keys.length-1; j++) {
+        for (int i = 0; i < keys.length-1; i++) {
+            for (int j = i+1; j < keys.length; j++) {
                 if (((ServerNode) nodes[j]).getTotalConsume() - ((ServerNode) nodes[i]).getTotalConsume() > threshold) {
                     result = true;
                 }
